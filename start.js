@@ -1,31 +1,13 @@
 var express = require('express');
 var app = express();
 require('dotenv').config();
+const port = process.env.API_PORT || 5000;
 
-var sql = require("mssql");
 
-var config = {
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    server: process.env.SERVER,
-    database: process.env.DATABASE,
-    port: parseInt(process.env.DB_PORT),
-};
+// Allow connections from the backend
+const cors = require('cors');
+app.use(cors({origin: process.env.BACKEND_DOMAIN}));
 
-sql.connect(config, function (err) {
-    if (err) {
-        console.log(err);
-    } else {
-        var request = new sql.Request();
+app.use('/api', require('./endpoints'));
 
-        request.query('SELECT * FROM PROFILE', function (err, response) {
-            if (err) console.log(err);
-
-            console.log(response.recordset);
-        });
-    }
-});
-
-var server = app.listen(process.env.API_PORT, function () {
-    console.log('Server is running...');
-});
+app.listen(port, () => console.log(`Database API listening at http://localhost:${port}`))
