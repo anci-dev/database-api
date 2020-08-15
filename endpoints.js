@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const request = require('request');
-
+const FREE_DAYS = 10;
 
 // Setup and connect to sql server
 var sql = require("mssql");
@@ -21,46 +21,119 @@ sql.connect(config, function (err) {
     }
 });
 
+// Didn't seem to be a date method that gave the proper sql format, so here's one
+function dateToString(date) {
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
 
-// Functions to implement:
-// builds => takes in a repo id, returns ordered list of builds for that repo (limit to 50?)
+// For now, it seems like these patterns will be used a lot, so I wrote a couple methods for them
+// Can return to individual sql request handling if need be
+function getData(query, res) {
+    var request = new sql.Request();
+
+    request.query(query, function (err, response) {
+        if (err) {
+            res.status(500).json(err);
+        } else {
+            console.log(response.recordset);
+            res.status(200).send({repositories: response.recordset});
+        }
+    });
+}
+
+// What kinds of responses are good for posts? Just confirmation?
+function updateData(query, res) {
+    var request = new sql.Request();
+
+    request.query(query, function (err, response) {
+        if (err) {
+            res.status(500).json(err);
+        } else {
+            console.log(response);
+            res.status(200).send(response);
+        }
+    });
+}
+
+router.post('/repo/:repoID/createRepo', function(req, res) {
+    var repoID = req.params.repoID;
+    var branch = req.body.branch || "master";
+    var payment = req.body.paymentMethod;
+    var expiryDate = new Date().addDays(FREE_DAYS);
+
+    var query = `
+        INSERT INTO Repository (ID, Branch, PaymentMethod, ExpiryDate)
+        VALUES (${repoID}, '${branch}', ${payment}, '${dateToString(expiryDate)}')
+        `;
+
+    updateData(query, res);
+});
+
+router.post('/repo/:repoID/updatePayment', function(req, res) {
+    var repoID = req.params.repoID;
+    var payment = req.body.paymentMethod;
+
+    if (!payment) {
+        res.status(400).json({message: "Missing parameters!"});
+    } else {
+        var query = `
+            UPDATE Repository
+            SET PaymentMethod = ${payment}
+            WHERE ID = ${repoID};
+            `;
+        updateData(query, res);
+    }
+});
+
+
+// Adds a (currently empty) build and updates corresponding repo build count
+router.post('/repo/:repoID/addBuild', function(req, res) {
+    var repoID = req.params.repoID;
+    var status = req.body.status || "";
+    var output = req.body.output || "";
+    var computeTime = req.body.computeTime || 0;
+
+    var query = `
+        DECLARE @new_build_num INT;
+        SET @new_build_num = db_accessadmin.NextBuildNum(${repoID});
+
+        UPDATE Repository
+        SET BuildCount = @new_build_num
+        WHERE ID = ${repoID};
+
+        INSERT INTO Build (RepoID, BuildNum, Status, Output, ComputeTime)
+        VALUES (${repoID}, @new_build_num, '${status}', '${output}', ${computeTime});
+        `;
+    updateData(query, res);
+});
 
 // Accepts list of repository ids, returns all rows from REPOSITORY matching those ids
-router.get('/repository', function(req, res) {
-    if (!req.query.repositories) {
-        res.status(400).json({message: "Missing respository url parameters!"});
-    } else {
-        var ids = Object.values(req.query.repositories);
+router.get('/repo', function(req, res) {
+    var repos = req.query.repositories;
 
-        var request = new sql.Request();
-        request.query(`SELECT * FROM REPOSITORY WHERE ID IN (${ids.join(", ")})`, function (err, response) {
-            if (err) {
-                res.status(500).json({message: "Database unavailable."});
-            } else {
-                console.log(response.recordset);
-                res.status(200).send({repositories: response.recordset});
-            }
-        });
+    if (!repos) {
+        res.status(400).json({message: "Missing respositories parameter(s)!"});
+    } else {
+        var ids = Object.values(repos);
+        var query = `
+            SELECT *
+            FROM Repository
+            WHERE ID IN (${ids.join(", ")});
+            `;
+        getData(query, res);
     }
 });
 
 // Accepts a single repositry id, returns all associated builds from most recent -> least recent
-router.get('/builds', function(req, res) {
-    if (!req.query.repository) {
-        res.status(400).json({message: "Missing respository url parameter!"});
-    } else {
-        var id = req.query.repository;
+router.get('/repo/:repoID/builds', function(req, res) {
+    var repoID = req.query.repoID;
 
-        var request = new sql.Request();
-        request.query(`SELECT * FROM BUILD WHERE RepoID = ${id} ORDER BY BuildNum DESC`, function (err, response) {
-            if (err) {
-                res.status(500).json({message: "Database unavailable."});
-            } else {
-                console.log(response.recordset);
-                res.status(200).send({builds: response.recordset});
-            }
-        });
-    }
+    var query = `
+        SELECT *
+        FROM Build WHERE RepoID = ${repoID}
+        ORDER BY BuildNum DESC;
+        `;
+    getData(query, res);
 });
 
 
