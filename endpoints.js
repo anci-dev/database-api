@@ -55,6 +55,8 @@ function updateData(query, res) {
     });
 }
 
+
+// REPOSITORY methods
 router.post('/repo/:repoID/createRepo', function(req, res) {
     var repoID = req.params.repoID;
     var branch = req.body.branch || "master";
@@ -126,7 +128,7 @@ router.get('/repo', function(req, res) {
 
 // Accepts a single repositry id, returns all associated builds from most recent -> least recent
 router.get('/repo/:repoID/builds', function(req, res) {
-    var repoID = req.query.repoID;
+    var repoID = req.params.repoID;
 
     var query = `
         SELECT *
@@ -136,5 +138,18 @@ router.get('/repo/:repoID/builds', function(req, res) {
     getData(query, res);
 });
 
+
+// PROFILE methods
+
+// Returns relevant user profile, creating an empty one if needed
+router.get('/user/:githubID', function(req, res) {
+    var githubID = req.params.githubID;
+
+    var query = `
+        INSERT INTO Profile (ID)
+        VALUES (${githubID});
+        `;
+    updateData(query, res);
+});
 
 module.exports = router;
