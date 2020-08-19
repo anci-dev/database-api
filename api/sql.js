@@ -23,9 +23,9 @@ function getData(query, res) {
 
     request.query(query, function (err, response) {
         if (err) {
+            console.log(err);
             res.status(500).json({success: false, error: err});
         } else {
-            console.log(response);
             res.status(200).send({success: true, found: response.recordset.length, records: response.recordset});
         }
     });
@@ -37,6 +37,7 @@ function updateData(query, res) {
 
     request.query(query, function (err, response) {
         if (err) {
+            console.log(err);
             res.status(500).json({success: false, error: err});
         } else {
             // response.rowsAffected[0] only returns number of rows affected by the first query

@@ -8,7 +8,7 @@ router.post('/:githubID/createUser', function(req, res) {
     var githubID = req.params.githubID;
 
     var query = `
-        INSERT INTO Profile (ID)
+        INSERT INTO PROFILE (id)
         VALUES (${githubID});
         `;
     sql.updateData(query, res);
@@ -20,8 +20,8 @@ router.get('/:githubID', function(req, res) {
 
     var query = `
         SELECT *
-        FROM Profile
-        WHERE ID = ${githubID};
+        FROM PROFILE
+        WHERE id = ${githubID};
         `;
     sql.getData(query, res);
 });

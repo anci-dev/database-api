@@ -17,7 +17,7 @@ router.post('/:repoID/createRepository', function(req, res) {
     var expiryDate = new Date().addDays(FREE_DAYS);
 
     var query = `
-        INSERT INTO Repository (ID, Branch, PaymentMethod, ExpiryDate)
+        INSERT INTO REPOSITORY (id, branch, paymentMethod, expiryDate)
         VALUES (${repoID}, '${branch}', ${payment}, '${dateToString(expiryDate)}')
         `;
 
@@ -32,9 +32,9 @@ router.post('/:repoID/updatePayment', function(req, res) {
         res.status(400).json({success: false, error: "Missing [payment] parameter!"});
     } else {
         var query = `
-            UPDATE Repository
-            SET PaymentMethod = ${payment}
-            WHERE ID = ${repoID};
+            UPDATE REPOSITORY
+            SET paymentMethod = ${payment}
+            WHERE id = ${repoID};
             `;
         sql.updateData(query, res);
     }
@@ -49,13 +49,13 @@ router.get('/', function(req, res) {
     } else {
         var ids = Object.values(repos);
         var query = `
-            SELECT Repository.*, (
+            SELECT REPOSITORY.*, (
                                     SELECT COUNT(*)
-                                    FROM Build
-                                    WHERE Build.RepoID = Repository.ID
-                                ) AS BuildCount
-            FROM Repository
-            WHERE ID IN (${ids.join(", ")});
+                                    FROM BUILD
+                                    WHERE BUILD.repoID = REPOSITORY.id
+                                ) AS buildCount
+            FROM REPOSITORY
+            WHERE id IN (${ids.join(", ")});
             `;
         sql.getData(query, res);
     }
@@ -66,13 +66,13 @@ router.get('/:repoID', function(req, res) {
     var repo = req.params.repoID;
 
     var query = `
-        SELECT Repository.*, (
+        SELECT REPOSITORY.*, (
                                 SELECT COUNT(*)
-                                FROM Build
-                                WHERE Build.RepoID = Repository.ID
-                            ) AS BuildCount
-        FROM Repository
-        WHERE Repository.ID = ${repo}
+                                FROM BUILD
+                                WHERE BUILD.repoID = REPOSITORY.id
+                            ) AS buildCount
+        FROM REPOSITORY
+        WHERE REPOSITORY.id = ${repo}
         `;
     sql.getData(query, res);
 });
@@ -83,8 +83,8 @@ router.get('/:repoID/builds', function(req, res) {
 
     var query = `
         SELECT *
-        FROM Build WHERE RepoID = ${repoID}
-        ORDER BY BuildNum DESC;
+        FROM BUILD WHERE repoID = ${repoID}
+        ORDER BY buildNum DESC;
         `;
     sql.getData(query, res);
 });
