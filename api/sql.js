@@ -26,7 +26,7 @@ function getData(query, res) {
             res.status(500).json({success: false, error: err});
         } else {
             console.log(response);
-            res.status(200).send({success: true, records: response.recordset});
+            res.status(200).send({success: true, found: response.recordset.length, records: response.recordset});
         }
     });
 }

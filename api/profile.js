@@ -11,7 +11,7 @@ router.post('/:githubID/createUser', function(req, res) {
         INSERT INTO Profile (ID)
         VALUES (${githubID});
         `;
-    sql.setData(query, res);
+    sql.updateData(query, res);
 });
 
 // Returns relevant user profile
