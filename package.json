@@ -1,0 +1,26 @@
+{
+  "name": "database-api",
+  "version": "1.0.0",
+  "description": "An API for managing our SQL database",
+  "main": "start.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mssql": "^6.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anci-dev/database-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anci-dev/database-api/issues"
+  },
+  "homepage": "https://github.com/anci-dev/database-api#readme"
+}
