@@ -18,8 +18,8 @@ router.get('/getBuilds', function(req, res) {
         FROM BUILD
         WHERE repoID = ${repoID}
         ORDER BY buildNum DESC
-        OFFSET ${offset} ROWS
-        FETCH NEXT ${PAGE_SIZE} ROWS ONLY;
+        LIMIT ${PAGE_SIZE}
+        OFFSET ${offset};
         `;
         sql.getData(query, res);
     }
