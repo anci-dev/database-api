@@ -15,25 +15,29 @@ connection.connect();
 // For now, it seems like these patterns will be used a lot, so I wrote a couple methods for them
 // Can return to individual sql request handling if need be
 function getData(query, res) {
+    console.log(query);
     connection.query(query, function (err, response) {
         if (err) {
             console.log(err);
             res.status(500).json({success: false, error: err});
         } else {
-            res.status(200).send({success: true, found: response.recordset.length, records: response.recordset});
+            console.log(response);
+            res.status(200).send({success: true, found: response.length, records: response});
         }
     });
 }
 
 // What kinds of responses are good for posts? Just confirmation?
 function updateData(query, res) {
+    console.log(query);
     connection.query(query, function (err, response) {
         if (err) {
             console.log(err);
             res.status(500).json({success: false, error: err});
         } else {
             // response.rowsAffected[0] only returns number of rows affected by the first query
-            res.status(200).send({success: true, numAffected: response.rowsAffected[0]});
+            console.log(response);
+            res.status(200).send({success: true, numAffected: response.length});
         }
     });
 }
