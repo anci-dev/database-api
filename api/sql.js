@@ -20,7 +20,7 @@ function getData(query, res) {
             console.log(err);
             res.status(500).json({success: false, error: err});
         } else {
-            res.status(200).send({success: true, found: response.recordset.length, records: response.recordset});
+            res.status(200).send({success: true, found: response.length, records: response.recordset});
         }
     });
 }
@@ -33,7 +33,7 @@ function updateData(query, res) {
             res.status(500).json({success: false, error: err});
         } else {
             // response.rowsAffected[0] only returns number of rows affected by the first query
-            res.status(200).send({success: true, numAffected: response.rowsAffected[0]});
+            res.status(200).send({success: true, numAffected: response.affectedRows});
         }
     });
 }
