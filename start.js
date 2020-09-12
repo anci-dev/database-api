@@ -12,4 +12,4 @@ app.use(cors({origin: process.env.BACKEND_DOMAIN}));
 
 app.use('/api', require('./api/endpoints'));
 
-app.listen(port, () => console.log(`Database API listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`Database API listening at http://localhost:${port}`));
