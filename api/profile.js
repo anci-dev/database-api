@@ -14,6 +14,25 @@ router.post('/:githubID/createUser', function(req, res) {
     sql.updateData(query, res);
 });
 
+// intended to update any user profile params
+// at the moment, stripeCustomerId is the only relavant
+// data to update
+router.post('/:githubID/updateUser', function(req, res) {
+    var githubID = req.params.githubID;
+    var stripeCustomerId = req.body.stripeCustomerId;
+
+    if (!stripeCustomerId) {
+        res.status(400).json({success: false, error: "Missing any relavant parameters to update the user with"});
+    } else {
+        var query = `
+            UPDATE PROFILE
+            SET stripeCustomerId = '${stripeCustomerId}'
+            WHERE id = ${githubID};
+            `;
+        sql.updateData(query, res);
+    }
+});
+
 // Returns relevant user profile
 router.get('/:githubID', function(req, res) {
     var githubID = req.params.githubID;
