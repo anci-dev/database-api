@@ -3,7 +3,7 @@ var app = express();
 require('dotenv').config();
 const port = process.env.API_PORT || 5000;
 
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 // Allow connections from the backend

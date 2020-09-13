@@ -6,10 +6,11 @@ const sql = require('./sql');
 // Creates new, blank user profile with given github ID
 router.post('/:githubID/createUser', function(req, res) {
     var githubID = req.params.githubID;
+    var stripeCustomerId = req.body.stripeCustomerId;
 
     var query = `
-        INSERT INTO PROFILE (id)
-        VALUES (${githubID});
+        INSERT INTO PROFILE (id, stripeCustomerId)
+        VALUES (${githubID}, '${stripeCustomerId}');
         `;
     sql.updateData(query, res);
 });
